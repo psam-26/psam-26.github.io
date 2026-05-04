@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P-SAM Method - Academic Project</title>
+    
+    <!-- 配置 MathJax 以支持公式自动编号和 LaTeX 语法 -->
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams', // 开启公式自动编号
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+    </script>
+    <!-- 引入 MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #fcfcfc;
+        }
+        
+        .paper-container {
+            background-color: #fff;
+            padding: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+
+        h1 {
+            font-size: 2em;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-top: 30px;
+            color: #222;
+        }
+
+        p {
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+
+        .figure-caption {
+            font-size: 0.9em;
+            color: #555;
+            text-align: justify;
+            margin: 15px 0 30px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-left: 3px solid #ccc;
+        }
+
+        /* 算法排版样式 (模仿 LaTeX algorithm block) */
+        .algorithm {
+            margin: 30px 0;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            font-family: inherit;
+        }
+        
+        .alg-caption {
+            font-weight: bold;
+            padding: 10px 5px;
+            border-bottom: 1px solid #000;
+        }
+        
+        .alg-body {
+            padding: 10px 5px;
+            font-size: 0.95em;
+        }
+
+        .alg-line {
+            display: flex;
+            margin-bottom: 5px;
+        }
+
+        .alg-num {
+            width: 30px;
+            color: #888;
+            text-align: right;
+            margin-right: 15px;
+            user-select: none;
+        }
+
+        .alg-content {
+            flex: 1;
+        }
+
+        .alg-comment {
+            color: #666;
+            font-style: italic;
+        }
+
+        .indent-1 { margin-left: 20px; }
+        .indent-2 { margin-left: 40px; }
+
+        ol {
+            margin-bottom: 20px;
+        }
+        ol li {
+            text-align: justify;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="paper-container">
+
+    <h1>1. Method</h1>
+    <p>Current adversarial patch generation methods for Vision-Language-Action (VLA) models predominantly optimize perturbations over static, isolated 2D images. This static assumption fundamentally ignores the dynamic realities of embodied, closed-loop robotic systems. During real-world execution, an adversarial patch is continuously subjected to macroscopic kinematic shifts (e.g., motion distortion, scaling, and perspective changes as the camera moves) and microscopic hardware degradations (e.g., CMOS sensor noise, ambient lighting jitter, and printer color gamut clipping). By ignoring these physical factors, traditional static 2D optimizations converge into brittle solutions that suffer from Adversarial Flickering, a phenomenon where a patch succeeds in a pristine digital frame but fails instantly the moment the robot arm moves.</p>
+
+    <p>To bridge this critical sim-to-real gap, we propose a novel framework that systematically embeds physical-world dynamics into the 2D optimization pipeline (as shown in Figure 2). Our method mathematically decouples physical robustness into three tractable objectives: simulating macroscopic motion dynamics (Section 2.1), sculpting flat minima to absorb microscopic hardware noise (Section 2.2), and bounding the optimization with strict physical fabricability constraints to guarantee zero-shot real-world transferability (Section 2.3).</p>
+
+    <h2>2.1 Macroscopic Kinematic Simulation via Expectation over Transformation</h2>
+    <p>Traditional adversarial attacks generate patches by overfitting to pristine, static viewpoints. The moment the robotic arm initiates a trajectory, the resulting perspective distortion (changes in scale, viewing angle, and spatial warping) instantly breaks the adversarial alignment. To guarantee robustness against these macroscopic kinematic shifts without leaving the efficient 2D domain, we employ Expectation over Transformation (EoT) across offline workspace datasets (see Figure 2 (a)).</p>
+
+    <p>Formally, the physically augmented observation fed into the VLA is defined as:</p>
+    \begin{equation}
+        o(x, \delta, \tau) = (1 - M_\tau) \odot x + M_\tau \odot \mathcal{T}(\delta, \tau),
+    \end{equation}
+    <p>where $x \in \mathbb{R}^{H \times W \times 3}$ is a clean, benign camera frame sampled from an offline dataset (e.g., LIBERO), and $\delta$ represents the learnable parameters of the 2D adversarial patch. To simulate the continuous perspective distortions and motion artifacts caused by the robot's movement, we sample a spatial transformation $\tau$ from a predefined physical distribution $\Gamma$ (encompassing random affine scaling, perspective warping, rotation, and brightness shifts). The function $\mathcal{T}(\delta, \tau)$ applies this macroscopic transformation to the digital patch $\delta$, while the operator $\odot$ denotes the Hadamard (element-wise) product.</p>
+
+    <p>Crucially, the dynamically transformed binary mask $M_\tau \in \{0,1\}^{H \times W}$ is not merely a spatial bounding box; it is the mathematical guarantor of physical realizability. To distinguish a legitimate localized physical attack from an impossible global digital perturbation, $M_\tau$ enforces two strict physical constraints:</p>
+    
+    <ol>
+        <li><strong>Mathematical Formulation of Opaque Occlusion:</strong> In the physical world, a printed patch is completely opaque; it does not semi-transparently blend with the environment. A naive additive perturbation ($x + \delta$) mathematically models a "ghost-like" digital overlay, a scenario that is physically impossible for real-world objects. Instead, the term $(1 - M_\tau) \odot x$ acts as a precise spatial carving mechanism, deleting the background pixels exactly where the patch resides. The addition of $M_\tau \odot \mathcal{T}(\delta, \tau)$ seamlessly inserts the transformed patch into this void, guaranteeing realistic physical occlusion.</li>
+        <li><strong>Dynamic Geometric Synchronization:</strong> As the robot's camera translates through 3D space, the 2D projection of the physical patch continuously distorts (e.g., a square sticker viewed from an acute angle projects as a trapezoid or rhombus). By subjecting the base binary mask $M$ to the exact same macroscopic transformation $\tau$, the resulting mask $M_\tau$ dynamically tracks the valid geometric boundary of the perturbation. This strict synchronization prevents the introduction of out-of-bound digital artifacts (such as the zero-padding artifacts inherently introduced by differentiable spatial transformations during affine rotations or perspective warps.), ensuring the adversarial gradients are strictly confined to the physical dimensions of the deployable sticker.</li>
+    </ol>
+
+    <p>Given this strictly bounded, physically augmented observation, we formulate the base targeted manipulation loss:</p>
+    \begin{equation}
+        \mathcal{L}_{base}(\delta, x, \tau) = \mathcal{L}_{CE}\Big( \mathcal{F}_{VLA}\big(o(x, \delta, \tau), I\big), \; A_{target} \Big),
+    \end{equation}
+    <p>where $\mathcal{F}_{VLA}(\cdot)$ acts as a frozen white-box Vision-Language-Action model; its internal weights are fixed, but full access to its computational graph is maintained to backpropagate gradients. $\mathcal{L}_{CE}$ denotes the Cross-Entropy loss, which quantifies the discrepancy between the VLA's predicted action distribution (conditioned on the natural language instruction $I$) and the attacker's malicious 7-DoF target $A_{target}$.</p>
+
+    <div class="figure-caption">
+        <strong>Figure 2: Overview of the P-SAM framework.</strong> Our method mitigates the adversarial sim-to-real gap via three decoupled 2D objectives. (a) Macroscopic Kinematic Simulation: Expectation over Transformation (EoT) with dynamic opaque masking models continuous 3D perspective shifts. (b) Microscopic Flat-Minima Optimization: Evaluating gradients at worst-case perturbed states sculpts a flat vulnerability basin to mitigate hardware-induced adversarial flickering. (c) Physical Fabricability Constraints: $\mathcal{L}_{TV}$ and $\mathcal{L}_{NPS}$ regularizers ensure the patch survives motion blur and CMYK gamut clipping during physical deployment.
+    </div>
+
+
+    <h2>2.2 Conquering Microscopic Noise via Physical Sharpness-Aware Minimization</h2>
+    <p>While EoT addresses macroscopic viewpoint changes, standard empirical risk minimization over static datasets inevitably drives the patch parameters into a "sharp minimum." In the physical world, cameras do not capture perfect pixel matrices. Unmodeled microscopic variations (e.g., CMOS camera sensor grain, ambient lighting fluctuations, and slight printer ink bleeding) act as random noise vectors that instantly eject the patch from this brittle minimum, neutralizing the attack.</p>
+
+    <p>To actively sculpt a globally robust "vulnerability basin" (i.e., a flat minimum) that immunizes the patch against these unpredictable sensor and environmental noises (as shown in Figure 2 (b)), we introduce Physical Sharpness-Aware Minimization (P-SAM). We enforce a constraint that the patch must remain aggressively malicious even when subjected to the absolute worst-case microscopic pixel degradation. This is formulated as a minimax objective:</p>
+    \begin{equation}
+        \min_{\delta} \mathbb{E}_{x, \tau} \left[ \max_{\|\epsilon\|_2 \le \rho} \mathcal{L}_{base}(\delta + \epsilon, x, \tau) \right],
+    \end{equation}
+    <p>where $\epsilon$ is a microscopic, learnable perturbation applied strictly to the patch pixels, acting as a mathematical surrogate for unmodeled physical hardware noise. The hyperparameter $\rho$ defines the $\ell_2$-norm radius of the perturbation ball, effectively controlling the desired width of the vulnerability basin.</p>
+
+    <p>Solving the exact inner maximization iteratively is computationally intractable for deep neural networks. However, utilizing the white-box gradients of the VLA, we can efficiently approximate the conditionally worst-case noise $\epsilon^*$ via a first-order Taylor expansion, requiring only a single additional backward pass per iteration:</p>
+    \begin{equation}
+        \epsilon^*(x, \tau) = \rho \frac{\nabla_\delta \mathcal{L}_{base}(\delta, x, \tau)}{\|\nabla_\delta \mathcal{L}_{base}(\delta, x, \tau)\|_2},
+    \end{equation}
+    <p>where $\nabla_\delta \mathcal{L}_{base}$ denotes the standard gradient of the base loss with respect to the patch parameters. Crucially, this worst-case pixel noise $\epsilon^*(x, \tau)$ is strictly conditioned on the specific background image $x$ and the sampled macroscopic perspective $\tau$.</p>
+
+    <p>Instead of updating the patch using the gradient at its current state $\delta_k$, P-SAM computes the gradient at this worst-case perturbed state. The patch parameters are thus updated as:</p>
+    \begin{equation}
+        \delta_{k+1} = \delta_k - \alpha \cdot \mathbb{E}_{(x, \tau) \sim \mathcal{B}} \left[ \nabla_\delta \mathcal{L}_{base}\big(\delta_k + \epsilon^*(x, \tau), x, \tau\big) \right],
+    \end{equation}
+    <p>where $\mathcal{B}$ is the current mini-batch of sampled image-transformation pairs and $\alpha$ is the optimization learning rate.</p>
+
+    <div class="figure-caption">
+        <strong>Figure 5:</strong> Comparison of the effects of flat and sharp minima at test set shift. Here the test set shift is simulated by curve translation.
+    </div>
+
+    <p><strong>Geometric Interpretation of Global Flatness:</strong> Because the local loss landscape shifts continuously with respect to the macroscopic viewpoint $\tau$, the worst-case perturbation $\epsilon^*$ is highly dynamic. By computing the conditional worst-case noise for each $(x, \tau)$ pair independently in the mini-batch and averaging their respective perturbed gradients, the patch $\delta$ is pulled along a trajectory that simultaneously minimizes the loss against an ensemble of viewpoint-specific worst-case degradations. This dynamic acts as a mathematical repellent from sharp cliffs, naturally sculpting a globally flat, noise-resilient vulnerability basin (see Figure 5).</p>
+
+
+    <h2>2.3 Physical Fabricability Constraints</h2>
+    <p>Finally, a mathematically optimal digital patch is fundamentally useless if it cannot be accurately reproduced in the physical world. Static 2D optimization methods inherently assume perfect digital-to-physical pixel fidelity, frequently generating neon, high-frequency pixel static. Such patterns not only exceed the color gamut of physical printers (resulting in severe color clipping) but are also instantly destroyed by the motion blur inherent to a moving robotic camera. To bridge this final deployment gap, we enforce two strict physical regularizers (as shown in Figure 2 (c)).</p>
+
+    <p>First, to penalize high-frequency color transitions and ensure the adversarial signal survives motion blur and camera down-sampling, we apply Total Variation (TV) regularization:</p>
+    \begin{equation}
+        \mathcal{L}_{TV}(\delta) = \sum_{i,j} \sqrt{(\delta_{i+1,j} - \delta_{i,j})^2 + (\delta_{i,j+1} - \delta_{i,j})^2},
+    \end{equation}
+    <p>which guarantees organic, smooth gradients across the spatial coordinates $(i,j)$ of the patch.</p>
+
+    <p>Second, to ensure the digital pixels can be faithfully reproduced by physical ink without distortion, we apply the Non-Printability Score (NPS):</p>
+    \begin{equation}
+        \mathcal{L}_{NPS}(\delta) = \sum_{p \in \delta} \min_{c \in C} \|p - c\|_2,
+    \end{equation}
+    <p>which strictly binds every digital pixel vector $p$ to the closest matching color $c$ within a predefined, physically reproducible CMYK printer color gamut $C$. This prevents unpredictable out-of-gamut color clipping during fabrication.</p>
+
+    <p><strong>Final Unified Objective.</strong> Integrating the macroscopic kinematic simulation (EoT), the microscopic flat-minima optimization (P-SAM), and the physical fabricability constraints, the complete, end-to-end objective function optimized by the attacker is:</p>
+    \begin{equation}
+        \mathcal{L}_{final}(\delta) = \mathbb{E}_{(x, \tau) \sim \mathcal{B}} \Big[ \mathcal{L}_{base}\big(\delta + \epsilon^*(x, \tau), x, \tau\big) \Big] + \lambda_1 \mathcal{L}_{TV}(\delta) + \lambda_2 \mathcal{L}_{NPS}(\delta),
+    \end{equation}
+    <p>where $\lambda_1$ and $\lambda_2$ are empirically tuned weighting coefficients that balance the targeted kinematic hijacking success rate against the stealth and physical printability of the adversarial patch. The full optimization procedure is summarized in Algorithm 1. By optimizing Equation 8 entirely offline, the attacker bypasses the need for computationally prohibitive 3D simulations or real-time queries to the target robot. The resulting P-SAM patch acts as a condensed "vulnerability basin," inherently robust to both macroscopic kinematic shifts and microscopic physical degradations.</p>
+
+    <!-- Algorithm Block -->
+    <div class="algorithm">
+        <div class="alg-caption">Algorithm 1: Physical Sharpness-Aware Minimization (P-SAM)</div>
+        <div class="alg-body">
+            <div style="margin-bottom: 10px;">
+                <strong>Input:</strong> Offline dataset $\mathcal{D}$, Frozen VLA $\mathcal{F}_{VLA}$, Target Action $A_{target}$<br>
+                <strong>Parameters:</strong> Learning rate $\alpha$, perturbation bound $\rho$, constraint weights $\lambda_1, \lambda_2$<br>
+                <strong>Initialize:</strong> Patch parameters $\delta_0$
+            </div>
+            
+            <div class="alg-line"><div class="alg-num">1</div><div class="alg-content"><strong>For</strong> step $k = 0, 1, 2, \dots$ <strong>do</strong></div></div>
+            <div class="alg-line"><div class="alg-num">2</div><div class="alg-content indent-1">Sample a mini-batch of clean frames $x \sim \mathcal{D}$ and physical transforms $\tau \sim \Gamma$</div></div>
+            <div class="alg-line"><div class="alg-num">3</div><div class="alg-content indent-1">Construct augmented observations $o = (1 - M_\tau) \odot x + M_\tau \odot \mathcal{T}(\delta_k, \tau)$</div></div>
+            
+            <div class="alg-line"><div class="alg-num">4</div><div class="alg-content indent-1 alg-comment">// Step 1: Inner Maximization (Approximate worst-case noise)</div></div>
+            <div class="alg-line"><div class="alg-num">5</div><div class="alg-content indent-1">Compute base loss $\mathcal{L}_{base} = \mathcal{L}_{CE}\big(\mathcal{F}_{VLA}(o), A_{target}\big)$</div></div>
+            <div class="alg-line"><div class="alg-num">6</div><div class="alg-content indent-1">Calculate worst-case perturbation: $\epsilon^* = \rho \frac{\nabla_{\delta} \mathcal{L}_{base}}{\|\nabla_{\delta} \mathcal{L}_{base}\|_2}$</div></div>
+            
+            <div class="alg-line"><div class="alg-num">7</div><div class="alg-content indent-1 alg-comment">// Step 2: Outer Minimization (Evaluate at perturbed state)</div></div>
+            <div class="alg-line"><div class="alg-num">8</div><div class="alg-content indent-1">Apply worst-case noise to the patch: $\hat{\delta} = \delta_k + \epsilon^*$</div></div>
+            <div class="alg-line"><div class="alg-num">9</div><div class="alg-content indent-1">Construct noisy observation $o_{noisy} = (1 - M_\tau) \odot x + M_\tau \odot \mathcal{T}(\hat{\delta}, \tau)$</div></div>
+            <div class="alg-line"><div class="alg-num">10</div><div class="alg-content indent-1">Compute perturbed loss $\hat{\mathcal{L}}_{base} = \mathcal{L}_{CE}\big(\mathcal{F}_{VLA}(o_{noisy}), A_{target}\big)$</div></div>
+            <div class="alg-line"><div class="alg-num">11</div><div class="alg-content indent-1">Compute gradients of constraints: $\nabla_\delta \mathcal{L}_{TV}(\delta_k)$ and $\nabla_\delta \mathcal{L}_{NPS}(\delta_k)$</div></div>
+            
+            <div class="alg-line"><div class="alg-num">12</div><div class="alg-content indent-1 alg-comment">// Step 3: Apply Flat-Minima Update</div></div>
+            <div class="alg-line"><div class="alg-num">13</div><div class="alg-content indent-1">Compute final gradient: $g = \nabla_{\delta} \hat{\mathcal{L}}_{base} + \lambda_1 \nabla_\delta \mathcal{L}_{TV} + \lambda_2 \nabla_\delta \mathcal{L}_{NPS}$</div></div>
+            <div class="alg-line"><div class="alg-num">14</div><div class="alg-content indent-1">Update patch: $\delta_{k+1} = \delta_k - \alpha \cdot g$</div></div>
+            <div class="alg-line"><div class="alg-num">15</div><div class="alg-content indent-1">Project $\delta_{k+1}$ to valid RGB color space $[0,1]$</div></div>
+            <div class="alg-line"><div class="alg-num">16</div><div class="alg-content"><strong>End For</strong></div></div>
+            <div class="alg-line"><div class="alg-num">17</div><div class="alg-content"><strong>Return:</strong> Optimized, physically robust adversarial patch $\delta^*$</div></div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
