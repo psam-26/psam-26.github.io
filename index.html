@@ -1,258 +1,388 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P-SAM: Sculpting Vulnerability Basins for Embodied VLAs</title>
+    <title>P-SAM: Physical Sharpness-Aware Minimization</title>
     <style>
         :root {
-            --primary-color: #0b2b40;
-            --secondary-color: #5ab1bb;
-            --bg-color: #f8f9fa;
-            --text-color: #333;
-            --light-bg: #ffffff;
+            --primary-blue: #0b2b40;
+            --accent-cyan: #5ab1bb;
+            --accent-cyan-light: #e0f2f4;
+            --text-dark: #2d3748;
+            --text-muted: #4a5568;
+            --bg-light: #f7fafc;
+            --card-bg: #ffffff;
         }
-        
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
             line-height: 1.7;
-            color: var(--text-color);
-            background-color: var(--bg-color);
+            color: var(--text-dark);
+            background-color: var(--bg-light);
             margin: 0;
             padding: 0;
         }
 
-        header {
-            background-color: var(--light-bg);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        /* --- Modern Hero Section with Grid Pattern --- */
+        .hero {
+            position: relative;
+            padding: 100px 20px 80px;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff 0%, #eef2f6 100%);
+            border-bottom: 1px solid #e2e8f0;
+            overflow: hidden;
         }
 
-        .header-container {
+        /* Subtle grid background for academic/tech feel */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background-image: 
+                linear-gradient(rgba(90, 177, 187, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(90, 177, 187, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 1;
+        }
+
+        .title-container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             max-width: 1000px;
             margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
         }
 
-        .logo-container img {
-            height: 50px;
-            object-fit: contain;
+        .hero-logo {
+            width: 240px;
+            height: auto;
+            margin-bottom: 35px;
+            filter: drop-shadow(0 15px 25px rgba(11, 43, 64, 0.15));
+            transition: transform 0.4s ease;
+        }
+
+        .hero-logo:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: var(--primary-blue);
+            margin: 0;
+            line-height: 1.15;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .hero h2 {
+            font-size: 1.4rem;
+            color: var(--accent-cyan);
+            margin-top: 20px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        /* --- Floating Glassmorphism Navigation --- */
+        nav {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            width: fit-content;
+            margin: -25px auto 50px auto;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50px;
+            padding: 8px 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: 5px;
         }
 
         nav a {
             text-decoration: none;
-            color: var(--primary-color);
+            color: var(--primary-blue);
             font-weight: 600;
-            margin-left: 25px;
-            transition: color 0.3s ease;
+            font-size: 0.95rem;
+            padding: 10px 20px;
+            border-radius: 30px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         nav a:hover {
-            color: var(--secondary-color);
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 40px 50px;
-            background-color: var(--light-bg);
-            box-shadow: 0 5px 25px rgba(0,0,0,0.05);
-            border-radius: 8px;
-        }
-
-        .hero {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .hero h1 {
-            color: var(--primary-color);
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-            line-height: 1.3;
-        }
-
-        .hero .authors {
-            font-size: 1.2rem;
-            color: #555;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .hero .institutions {
-            font-style: italic;
-            color: #777;
-            margin-bottom: 25px;
-            padding: 5px 15px;
-            background-color: #fff3cd;
-            display: inline-block;
-            border-radius: 4px;
-            border: 1px solid #ffe69c;
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 24px;
-            background-color: var(--primary-color);
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .btn:hover {
-            background-color: var(--secondary-color);
+            background-color: var(--primary-blue);
+            color: #ffffff;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(11, 43, 64, 0.2);
+        }
+
+        /* --- Main Content Layout --- */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px 20px 80px;
         }
 
         section {
-            margin-bottom: 45px;
+            margin-bottom: 90px;
+            scroll-margin-top: 100px; /* Adjusts scroll position for fixed nav */
         }
 
-        section h2 {
-            color: var(--primary-color);
-            border-bottom: 2px solid #eaeaea;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+        h3 {
+            font-size: 2rem;
+            color: var(--primary-blue);
+            display: inline-block;
+            margin-bottom: 30px;
             position: relative;
         }
 
-        section h2::after {
+        h3::after {
             content: '';
             position: absolute;
             left: 0;
-            bottom: -2px;
-            height: 2px;
-            width: 60px;
-            background-color: var(--secondary-color);
+            bottom: -8px;
+            width: 40px;
+            height: 4px;
+            background-color: var(--accent-cyan);
+            border-radius: 2px;
         }
 
-        .highlight-box {
-            background-color: #f0f7f8;
-            border-left: 4px solid var(--secondary-color);
-            padding: 15px 20px;
-            margin: 20px 0;
-            border-radius: 0 4px 4px 0;
+        p {
+            margin-bottom: 24px;
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            text-align: justify;
         }
 
-        .image-center {
+        /* --- Polished Abstract Box --- */
+        .abstract-box {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            border-left: 6px solid var(--accent-cyan);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        .abstract-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* --- Interactive Method Cards --- */
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .method-card {
+            background: var(--card-bg);
+            padding: 35px 25px;
+            border-radius: 16px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .method-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--accent-cyan);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.06);
+            border-color: var(--accent-cyan-light);
+        }
+
+        .method-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .method-card h4 {
+            margin-top: 0;
+            color: var(--primary-blue);
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+        }
+
+        .method-card p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        /* --- Refined Image Placeholders --- */
+        .image-placeholder {
+            width: 100%;
+            min-height: 350px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            margin: 30px 0;
+            color: #64748b;
+            font-weight: 500;
+            margin: 40px 0;
+            padding: 30px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
         }
 
-        .image-center img {
-            max-width: 100%;
-            border-radius: 8px;
+        .image-placeholder span {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            opacity: 0.5;
         }
 
+        .image-placeholder:hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-color: var(--accent-cyan);
+            color: var(--primary-blue);
+        }
+
+        /* --- Footer --- */
         footer {
             text-align: center;
-            padding: 25px;
-            background-color: var(--primary-color);
-            color: #fff;
+            padding: 50px 20px;
+            background: var(--primary-blue);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
             margin-top: 60px;
-            font-size: 0.9rem;
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .hero h2 { font-size: 1.2rem; }
+            .hero-logo { width: 180px; }
+            nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                border-radius: 20px;
+                padding: 15px;
+            }
+            nav a { padding: 8px 12px; }
+            h3 { font-size: 1.7rem; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="header-container">
-            <div class="logo-container">
-                <img src="1.png" alt="P-SAM Logo">
-            </div>
-            <nav>
-                <a href="#abstract">摘要</a>
-                <a href="#challenge">研究挑战</a>
-                <a href="#method">P-SAM方法</a>
-                <a href="#results">实验结果</a>
-            </nav>
+    <section class="hero">
+        <div class="title-container">
+            <img src="figure/logo.png" alt="P-SAM Logo" class="hero-logo">
+            <h1>Sculpting Vulnerability Basins: Physical Sharpness-Aware Minimization for Embodied VLAs</h1>
+            <h2>Enhancing the Robustness of Vision-Language-Action Models</h2>
         </div>
-    </header>
+    </section>
+
+    <nav>
+        <a href="#abstract"><span>📝</span> Abstract</a>
+        <a href="#challenge"><span>🎯</span> The Challenge</a>
+        <a href="#method"><span>⚙️</span> Methodology</a>
+        <a href="#results"><span>📊</span> Results</a>
+    </nav>
 
     <div class="container">
-        <section class="hero">
-            <h1>Sculpting Vulnerability Basins: Physical Sharpness-Aware Minimization for Embodied VLAs [cite: 1, 2]</h1>
-            <div class="authors">
-                Anonymous Author(s) 
-            </div>
-            <div class="institutions">
-                Submitted to 40th Conference on Neural Information Processing Systems (NeurIPS 2026). Do not distribute. 
-            </div>
-            
-            <div class="button-group">
-                <a href="#" class="btn">📄 Anonymous Paper (PDF)</a>
-                <a href="https://psam-26.github.io" class="btn" target="_blank">🔗 Anonymous Project Page</a>
-            </div>
-        </section>
-
         <section id="abstract">
-            <h2>摘要 (Abstract)</h2>
-            <p>
-                视觉-语言-动作（VLA）模型在具身机器人控制领域展现出了强大的范式潜力，然而它们在物理世界中面对对抗性攻击的鲁棒性却鲜有探讨 [cite: 29]。当前的对抗补丁生成方法通常在静态、孤立的2D图像帧上进行优化 [cite: 30]。
-            </p>
-            <p>
-                当将这些补丁部署到机器人系统时，暴露出了一个致命缺陷：标准的优化往往会收敛到脆弱的“尖锐极小值”（sharp minima）[cite: 31]。因此，这些攻击会遭受严重的对抗性闪烁，并在面临宏观运动学偏移（如连续的相机平移）和微观硬件退化（如打印机色域限制）时完全失效 [cite: 32]。
-            </p>
-            <div class="highlight-box">
-                为了弥合这一从模拟到现实的差距，我们提出了 <strong>物理锐度感知最小化（Physical Sharpness-Aware Minimization, P-SAM）</strong> [cite: 33]。
+            <h3>Abstract</h3>
+            <div class="abstract-box">
+                <p>
+                    Vision-Language-Action (VLA) models have emerged as powerful paradigms for embodied robotic control, yet their robustness against physical-world adversarial attacks remains underexplored. Current adversarial patch generation methods typically optimize over static, isolated 2D frames. However, deploying these patches against robotic systems exposes a critical flaw: standard optimizations tend to converge into fragile sharp minima. 
+                </p>
+                <p>
+                    To bridge this sim-to-real gap, we propose <strong>Physical Sharpness-Aware Minimization (P-SAM)</strong>. Our framework mathematically decouples physical robustness into two tractable objectives. By forcing gradient updates at conditionally worst-case perturbed states, P-SAM actively sculpts broad vulnerability basins in the loss landscape.
+                </p>
             </div>
         </section>
 
         <section id="challenge">
-            <h2>研究挑战：对抗性闪烁 (Adversarial Flickering)</h2>
+            <h3>The Challenge: Adversarial Flickering</h3>
             <p>
-                我们发现，将传统的对抗补丁部署在闭环机器人系统上时，存在根本性的方法论缺陷 [cite: 83]。随着机器人的移动，补丁会经历宏观的运动学偏移（尺度、视角的连续变化）以及微观的硬件退化（传感器噪点、运动模糊） [cite: 86, 87]。
+                Conventional patches optimized on static frames fail in closed-loop systems. As the robot moves, the patch undergoes macroscopic kinematic shifts (e.g., changes in camera translation and scale) and microscopic hardware degradations. 
             </p>
+            
+            <div class="image-placeholder">
+                <span>🖼️</span>
+                [ Insert Figure 1 Here: Illustration of Adversarial Flickering vs. Continuous Kinematic Hijacking ]
+            </div>
+
             <p>
-                标准的经验风险最小化在非凸的对抗损失地形中自然会收敛到高度局部化的尖锐极小值 [cite: 92]。即使是微观的偏差也会立刻将补丁从这个脆弱的最佳状态中推离，导致攻击失效，这种现象我们称之为<strong>对抗性闪烁 (Adversarial Flickering)</strong> [cite: 93]。
+                Because standard empirical risk minimization naturally converges into highly localized, <strong>sharp minima</strong>, even a microscopic deviation instantly ejects the patch from its optimal state. This results in <strong>adversarial flickering</strong>, where the malicious patch succeeds in one frame but shatters the moment the robot arm moves.
             </p>
         </section>
 
         <section id="method">
-            <h2>我们的方法：P-SAM 框架</h2>
-            <p>为了在不引发 3D 数字孪生计算爆炸的前提下克服这些挑战，我们的框架将物理鲁棒性在数学上解耦为两个易于处理的目标 [cite: 99, 102]：</p>
+            <h3>P-SAM Methodology</h3>
+            <p>P-SAM overcomes the sim-to-real gap by systematically embedding physical-world dynamics into the 2D optimization pipeline.</p>
             
-            <ul>
-                <li><strong>宏观运动学仿真：</strong> 首先，我们利用离线数据集上的变换期望（Expectation over Transformation, EoT），以低计算成本模拟机器臂在 3D 空间移动时的连续相机运动和宏观轨迹动态 [cite: 35, 104, 106]。</li>
-                <li><strong>微观平坦极小值优化 (P-SAM)：</strong> 其次，我们利用 VLA 的白盒特性进行极小极大（minimax）优化。我们通过一阶泰勒展开，动态逼近特定条件下的最坏情况微观像素噪声 [cite: 36]。通过强制在这些最坏情况的扰动状态下进行梯度更新，P-SAM 主动在损失地形中雕刻出宽阔的“脆弱性盆地”（平坦极小值） [cite: 37, 109]。</li>
-                <li><strong>物理可制造性约束：</strong> 最后，结合严格的物理可制造性约束（总变差 TV 和不可打印性得分 NPS 正则化），确保生成的补丁能够在自然运动模糊和标准商业打印机的 CMYK 色域限制下存活 [cite: 38, 197]。</li>
-            </ul>
+            <div class="image-placeholder">
+                <span>📐</span>
+                [ Insert Figure 2 Here: Overview of the P-SAM Framework (Macroscopic & Microscopic Objectives) ]
+            </div>
+
+            <div class="method-grid">
+                <div class="method-card">
+                    <h4>1. Macroscopic Simulation</h4>
+                    <p>We utilize Expectation over Transformation (EoT) on single frames sampled from offline datasets to cheaply simulate continuous camera motion in 3D space.</p>
+                </div>
+                <div class="method-card">
+                    <h4>2. Microscopic Flat-Minima</h4>
+                    <p>P-SAM formulates a minimax objective that dynamically approximates the conditionally worst-case pixel perturbation for any given perspective via a first-order Taylor expansion.</p>
+                </div>
+                <div class="method-card">
+                    <h4>3. Fabricability Constraints</h4>
+                    <p>We apply Total Variation (TV) and Non-Printability Score (NPS) regularizers to ensure patches feature smooth color transitions that survive motion blur and are reproducible.</p>
+                </div>
+            </div>
         </section>
 
         <section id="results">
-            <h2>主要实验结果 (Key Results)</h2>
+            <h3>Experimental Results</h3>
             <p>
-                我们的方法生成的对抗补丁对 VLA 的 7-DoF 运动学保持了不可逃避且极具破坏性的影响 [cite: 38]。
+                Evaluations across diverse manipulation tasks demonstrate that P-SAM significantly outperforms baseline static patches in both digital simulation and real-world physical deployments.
             </p>
-            <ul>
-                <li>在多种操作任务的评估中，P-SAM 显著优于基线静态补丁 [cite: 39]。</li>
-                <li>在真实物理部署中，与传统方法由于运动偏移导致任务失败率骤降（例如在 OpenVLA 上攻击维持率仅为 19.5%）相比，P-SAM 作为一个数学上的“减震器”，在复杂的物理操作任务中实现了高达 <strong>76%</strong> 的任务失败率 (Task Failure Rate, TFR) [cite: 359, 369, 370]。</li>
-                <li><strong>零样本迁移能力：</strong> 实验表明，P-SAM 补丁即使在严格的黑盒设置下，对诸如 OpenVLA、$\pi_0$、$\pi_{0.5}$ 和 FAST 等不同的 VLA 架构也保持了物理迁移能力 [cite: 450, 454]。</li>
-                <li><strong>突破语义防御：</strong> 当向 VLA 提供明确的语义安全指令（如“忽略桌上的彩色补丁”）时，P-SAM 成功诱导了模型的“语言性失聪”，迫使模型完全无视语义防御并执行恶意轨迹 [cite: 1026, 1028]。</li>
-            </ul>
+
+            <div class="image-placeholder">
+                <span>📈</span>
+                [ Insert Qualitative Demonstrations Here: e.g., OpenVLA trajectory deviations and success rates ]
+            </div>
+
+            <div class="abstract-box" style="background-color: transparent; border: 1px solid #e2e8f0; box-shadow: none;">
+                <p><strong>🔥 Real-World Hijacking:</strong> P-SAM sustains inescapable influence over the VLA's 7-DoF kinematics, reaching real-world Task Failure Rates (TFR) of up to 76% in complex manipulation tasks.</p>
+                <p><strong>🌐 Cross-Model Transferability:</strong> By sculpting a wide vulnerability basin, P-SAM captures generalized semantic flaws, posing a realistic threat even under black-box assumptions against models like OpenVLA, &pi;<sub>0</sub>, and FAST.</p>
+                <p><strong>🔇 Language Deafness:</strong> Strikingly, P-SAM patches can induce a state of "language deafness," where the VLA disregards explicit semantic safety guardrails to follow the injected malicious trajectory.</p>
+            </div>
         </section>
-        
     </div>
 
     <footer>
-        <p>&copy; 2026 Anonymous Submission for Double-Blind Review. All Rights Reserved.</p>
+        <p>&copy; 2026 P-SAM Project. Built for Academic Review.</p>
     </footer>
 
 </body>
