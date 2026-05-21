@@ -38,7 +38,6 @@
             overflow: hidden;
         }
 
-        /* Subtle grid background for academic/tech feel */
         .hero::before {
             content: '';
             position: absolute;
@@ -90,6 +89,35 @@
             opacity: 0.9;
         }
 
+        /* --- Action Buttons --- */
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.05rem;
+            border-radius: 30px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(11, 43, 64, 0.15);
+        }
+
+        .action-btn:hover {
+            background-color: var(--accent-cyan);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(90, 177, 187, 0.3);
+        }
+
         /* --- Floating Glassmorphism Navigation --- */
         nav {
             position: sticky;
@@ -137,7 +165,7 @@
 
         section {
             margin-bottom: 90px;
-            scroll-margin-top: 100px; /* Adjusts scroll position for fixed nav */
+            scroll-margin-top: 100px;
         }
 
         h3 {
@@ -159,11 +187,30 @@
             border-radius: 2px;
         }
 
+        h4 {
+            font-size: 1.4rem;
+            color: var(--primary-blue);
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
         p {
             margin-bottom: 24px;
             font-size: 1.15rem;
             color: var(--text-muted);
             text-align: justify;
+        }
+
+        ul {
+            margin-bottom: 24px;
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        ul li {
+            margin-bottom: 12px;
         }
 
         /* --- Polished Abstract Box --- */
@@ -223,8 +270,9 @@
         .method-card h4 {
             margin-top: 0;
             color: var(--primary-blue);
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             margin-bottom: 15px;
+            font-weight: 700;
         }
 
         .method-card p {
@@ -233,36 +281,73 @@
             margin-bottom: 0;
         }
 
-        /* --- Refined Image Placeholders --- */
-        .image-placeholder {
+        /* --- Figure Image Container --- */
+        .figure-container {
             width: 100%;
-            min-height: 350px;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border: 2px dashed #cbd5e1;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
-            font-weight: 500;
             margin: 40px 0;
-            padding: 30px;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .image-placeholder span {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            opacity: 0.5;
+        .figure-container img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            object-fit: contain;
         }
 
-        .image-placeholder:hover {
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            border-color: var(--accent-cyan);
+        /* --- Academic Table Style --- */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 10px 0 40px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            font-size: 0.83rem; /* 更新：字号缩小至 0.83rem */
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .results-table th, .results-table td {
+            padding: 10px 12px;
+            border: 1px solid #edf2f7;
+        }
+
+        .results-table thead {
+            background-color: #f1f5f9;
             color: var(--primary-blue);
+            font-weight: 600;
+        }
+        
+        .results-table th {
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .results-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .results-table .highlight-row {
+            background-color: var(--accent-cyan-light);
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+        
+        .results-table .highlight-row:hover {
+            background-color: #d0ebef;
         }
 
         /* --- Footer --- */
@@ -275,11 +360,11 @@
             margin-top: 60px;
         }
 
-        /* --- Responsive Adjustments --- */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.2rem; }
             .hero h2 { font-size: 1.2rem; }
             .hero-logo { width: 180px; }
+            .action-buttons { flex-wrap: wrap; }
             nav {
                 flex-wrap: wrap;
                 justify-content: center;
@@ -298,6 +383,16 @@
             <img src="figure/logo.png" alt="P-SAM Logo" class="hero-logo">
             <h1>Sculpting Vulnerability Basins: Physical Sharpness-Aware Minimization for Embodied VLAs</h1>
             <h2>Enhancing the Robustness of Vision-Language-Action Models</h2>
+
+            <div class="action-buttons">
+                <a href="paper.pdf" class="action-btn" target="_blank">
+                    <span>📄</span> Paper
+                </a>
+                <a href="https://github.com/psam-26/psam-26.github.io/tree/main/code" class="action-btn" target="_blank">
+                    <span>💻</span> Code
+                </a>
+            </div>
+
         </div>
     </section>
 
@@ -327,9 +422,8 @@
                 Conventional patches optimized on static frames fail in closed-loop systems. As the robot moves, the patch undergoes macroscopic kinematic shifts (e.g., changes in camera translation and scale) and microscopic hardware degradations. 
             </p>
             
-            <div class="image-placeholder">
-                <span>🖼️</span>
-                [ Insert Figure 1 Here: Illustration of Adversarial Flickering vs. Continuous Kinematic Hijacking ]
+            <div class="figure-container">
+                <img src="figure/1.png" alt="Illustration of Adversarial Flickering vs. Continuous Kinematic Hijacking">
             </div>
 
             <p>
@@ -341,9 +435,8 @@
             <h3>P-SAM Methodology</h3>
             <p>P-SAM overcomes the sim-to-real gap by systematically embedding physical-world dynamics into the 2D optimization pipeline.</p>
             
-            <div class="image-placeholder">
-                <span>📐</span>
-                [ Insert Figure 2 Here: Overview of the P-SAM Framework (Macroscopic & Microscopic Objectives) ]
+            <div class="figure-container">
+                <img src="figure/2.png" alt="Overview of the P-SAM Framework">
             </div>
 
             <div class="method-grid">
@@ -364,20 +457,160 @@
 
         <section id="results">
             <h3>Experimental Results</h3>
+
+            <div class="table-responsive">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="text-align: left;">Method Configuration</th>
+                            <th rowspan="2">Model</th>
+                            <th colspan="3">LIBERO-Long</th>
+                            <th colspan="3">LIBERO-Spatial</th>
+                            <th colspan="3">Real-World</th>
+                        </tr>
+                        <tr>
+                            <th>TFR (%)</th><th>NAD (%)</th><th>ASR (%)</th>
+                            <th>TFR (%)</th><th>NAD (%)</th><th>ASR (%)</th>
+                            <th>OBJ (%)</th><th>PLC (%)</th><th>MNP (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align: left;">Clean (Initial Model)</td>
+                            <td rowspan="7" style="border-right: 1px solid #edf2f7;">OpenVLA</td>
+                            <td>46.3</td><td>-</td><td>-</td>
+                            <td>15.3</td><td>-</td><td>-</td>
+                            <td>12</td><td>14</td><td>20</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">Random Noise</td>
+                            <td>48.4</td><td>-</td><td>-</td>
+                            <td>16.6</td><td>-</td><td>-</td>
+                            <td>14</td><td>17</td><td>21</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">w/o Viewpoint Deformation</td>
+                            <td>60.6</td><td>30.8</td><td>19.5</td>
+                            <td>38.2</td><td>16.8</td><td>8.9</td>
+                            <td>37</td><td>43</td><td>48</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">w/o Flat Minima</td>
+                            <td>86.8</td><td>42.7</td><td>29.0</td>
+                            <td>71.6</td><td>26.1</td><td>18.3</td>
+                            <td>40</td><td>49</td><td>45</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">w/o <i>L<sub>TV</sub></i> (No Smoothness)</td>
+                            <td>72.4</td><td>34.9</td><td>25.4</td>
+                            <td>49.2</td><td>14.5</td><td>10.7</td>
+                            <td>35</td><td>44</td><td>47</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">w/o <i>L<sub>NPS</sub></i> (No Gamut Sync)</td>
+                            <td>98.2</td><td>61.5</td><td>44.6</td>
+                            <td>88.4</td><td>45.3</td><td>36.9</td>
+                            <td>26</td><td>28</td><td>29</td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td style="text-align: left;">Ours (Full P-SAM)</td>
+                            <td>100</td><td>63.6</td><td>47.1</td>
+                            <td>95.6</td><td>50.7</td><td>38.5</td>
+                            <td>62</td><td>71</td><td>76</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">Clean (Initial Model)</td>
+                            <td rowspan="7" style="border-right: 1px solid #edf2f7; border-top: 2px solid #cbd5e1;">&pi;<sub>0</sub></td>
+                            <td style="border-top: 2px solid #cbd5e1;">6.2</td><td style="border-top: 2px solid #cbd5e1;">-</td><td style="border-top: 2px solid #cbd5e1;">-</td>
+                            <td style="border-top: 2px solid #cbd5e1;">1.0</td><td style="border-top: 2px solid #cbd5e1;">-</td><td style="border-top: 2px solid #cbd5e1;">-</td>
+                            <td style="border-top: 2px solid #cbd5e1;">1</td><td style="border-top: 2px solid #cbd5e1;">4</td><td style="border-top: 2px solid #cbd5e1;">7</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">Random Noise</td>
+                            <td>8.2</td><td>-</td><td>-</td>
+                            <td>1.8</td><td>-</td><td>-</td>
+                            <td>2</td><td>4</td><td>9</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">w/o Viewpoint Deformation</td>
+                            <td>31.4</td><td>12.5</td><td>6.2</td>
+                            <td>18.8</td><td>8.3</td><td>4.5</td>
+                            <td>16</td><td>20</td><td>26</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">w/o Flat Minima</td>
+                            <td>37.8</td><td>16.4</td><td>9.1</td>
+                            <td>35.2</td><td>15.9</td><td>8.7</td>
+                            <td>29</td><td>28</td><td>30</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">w/o <i>L<sub>TV</sub></i> (No Smoothness)</td>
+                            <td>36.0</td><td>16.1</td><td>9.0</td>
+                            <td>36.2</td><td>16.2</td><td>8.8</td>
+                            <td>27</td><td>29</td><td>34</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">w/o <i>L<sub>NPS</sub></i> (No Gamut Sync)</td>
+                            <td>59.0</td><td>25.7</td><td>16.8</td>
+                            <td>54.4</td><td>23.6</td><td>16.4</td>
+                            <td>11</td><td>17</td><td>22</td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td style="text-align: left;">Ours (Full P-SAM)</td>
+                            <td>72.6</td><td>28.9</td><td>20.5</td>
+                            <td>71.6</td><td>29.3</td><td>20.2</td>
+                            <td>43</td><td>45</td><td>58</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <p>
-                Evaluations across diverse manipulation tasks demonstrate that P-SAM significantly outperforms baseline static patches in both digital simulation and real-world physical deployments.
+                While conventional static patches suffer catastrophic sim-to-real collapse due to adversarial flickering, <strong>Ours (Full P-SAM)</strong> acts as a mathematical shock absorber. By sculpting physically bounded flat vulnerability basins, P-SAM maximizes real-world Task Failure Rates up to <strong>76%</strong> in complex manipulation tasks and doubles the Attack Sustaining Rate compared to baselines.
             </p>
 
-            <div class="image-placeholder">
-                <span>📈</span>
-                [ Insert Qualitative Demonstrations Here: e.g., OpenVLA trajectory deviations and success rates ]
+            <h4>More Analysis</h4>
+            
+            <div class="figure-container">
+                <img src="figure/15.png" alt="TFR across different spatial patch placements">
             </div>
+            <p>
+                <strong>Spatial & Distance Invariance:</strong> P-SAM maintains a consistently high attack success rate across diverse angular placements and distance offsets. It acts as a global "attention sink," eliminating the need for strict physical proximity to the target object.
+            </p>
 
-            <div class="abstract-box" style="background-color: transparent; border: 1px solid #e2e8f0; box-shadow: none;">
-                <p><strong>🔥 Real-World Hijacking:</strong> P-SAM sustains inescapable influence over the VLA's 7-DoF kinematics, reaching real-world Task Failure Rates (TFR) of up to 76% in complex manipulation tasks.</p>
-                <p><strong>🌐 Cross-Model Transferability:</strong> By sculpting a wide vulnerability basin, P-SAM captures generalized semantic flaws, posing a realistic threat even under black-box assumptions against models like OpenVLA, &pi;<sub>0</sub>, and FAST.</p>
-                <p><strong>🔇 Language Deafness:</strong> Strikingly, P-SAM patches can induce a state of "language deafness," where the VLA disregards explicit semantic safety guardrails to follow the injected malicious trajectory.</p>
+            <div class="figure-container">
+                <img src="figure/4.png" alt="The TFR results of ρ and patch size">
             </div>
+            <p>
+                <strong>Hyperparameter Trade-offs:</strong> We identify an optimal perturbation radius (&rho; = 0.05) and patch size (5% of the frame) that perfectly balances physical resilience against environmental noise with visual stealth.
+            </p>
+
+            <div class="figure-container">
+                <img src="figure/6.png" alt="The TFR results of transferability across different VLAs and tasks">
+            </div>
+            <p>
+                <strong>Zero-Shot Transferability:</strong> By capturing generalized semantic flaws, P-SAM demonstrates strong black-box physical transferability across different VLA architectures (including FAST and &pi;<sub>0.5</sub>) and entirely novel task environments.
+            </p>
+
+            <div class="figure-container">
+                <img src="figure/7.png" alt="Qualitative results of the simulated scenario">
+            </div>
+            <div class="figure-container">
+                <img src="figure/3.png" alt="Qualitative results of the real-world scenario">
+            </div>
+            <p>
+                <strong>Continuous Hijacking:</strong> Qualitative rollouts confirm that while baseline patches allow the robot to auto-correct after a perspective shift, P-SAM relentlessly overrides semantic instructions and subverts the closed-loop kinematics.
+            </p>
+
+            <div class="figure-container">
+                <img src="figure/12.png" alt="More successful attack examples">
+            </div>
+            <div class="figure-container">
+                <img src="figure/13.png" alt="Failed attack example due to occlusion">
+            </div>
+            <p>
+                <strong>Failure Modes & Occlusion:</strong> While highly robust to dynamic shifts, P-SAM attacks require an uninterrupted visual pathway. Severe topological occlusions block the injection of adversarial perturbations, temporarily suspending the attack and allowing the VLA to recover its benign control policy. This confirms that continuous geometric visibility remains a strict physical prerequisite for real-world execution.
+            </p>
         </section>
     </div>
 
